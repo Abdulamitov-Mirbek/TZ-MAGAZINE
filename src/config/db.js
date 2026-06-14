@@ -12,6 +12,10 @@ if (!databaseUrl) {
 try {
     const url = new URL(databaseUrl);
     console.log(`Attempting to connect to database at: ${url.hostname}:${url.port || 5432}`);
+    
+    if (process.env.NODE_ENV === 'production' && url.hostname === 'localhost') {
+        console.error('CRITICAL: Using "localhost" as database host in production! Please check your Render environment variables.');
+    }
 } catch (e) {
     console.log('Attempting to connect to database (URL format is not standard)');
 }
