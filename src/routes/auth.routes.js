@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { register, login, getMe } = require('../controllers/auth.controller');
+const { register, login, refreshToken, getMe } = require('../controllers/auth.controller');
 const { protect } = require('../middleware/auth.middleware');
 
 /**
@@ -41,9 +41,26 @@ const { protect } = require('../middleware/auth.middleware');
  *     responses:
  *       200:
  *         description: Login successful
+ * /api/auth/refresh:
+ *   post:
+ *     summary: Refresh access token
+ *     tags: [Auth]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [refresh]
+ *             properties:
+ *               refresh: {type: string}
+ *     responses:
+ *       200:
+ *         description: New access token returned
  */
 router.post('/register', register);
 router.post('/login', login);
+router.post('/refresh', refreshToken);
 router.get('/me', protect, getMe);
 
 module.exports = router;

@@ -12,6 +12,11 @@ const Category = sequelize.define('Category', {
         allowNull: false,
         unique: true
     },
+    slug: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        unique: true
+    },
     description: {
         type: DataTypes.TEXT
     }

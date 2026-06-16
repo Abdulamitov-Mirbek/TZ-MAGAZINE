@@ -10,7 +10,7 @@ exports.createOrder = async (req, res) => {
         let totalAmount = 0;
 
         const order = await Order.create({
-            userId: req.user.id,
+            userId: req.user ? req.user.id : null,
             totalAmount: 0 // Will update later
         }, { transaction: t });
 
@@ -52,6 +52,27 @@ exports.createOrder = async (req, res) => {
     }
 };
 
+exports.getOrderById = async (req, res) => {
+    try {
+        const order = await Order.findByPk(req.params.id, {
+            include: ['user', { model: OrderItem, as: 'items', include: ['product'] }]
+        });
+
+        if (!order) {
+            return res.status(404).json({ message: 'Order not found' });
+        }
+
+        // Check if owner or admin
+        if (req.user.role !== 'admin' && order.userId !== req.user.id) {
+            return res.status(403).json({ message: 'Not authorized to view this order' });
+        }
+
+        res.json(order);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
 exports.getMyOrders = async (req, res) => {
     try {
         const orders = await Order.findAll({
@@ -70,6 +91,18 @@ exports.getAllOrders = async (req, res) => {
             include: ['user', { model: OrderItem, as: 'items', include: ['product'] }]
         });
         res.json(orders);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+exports.getOrders = async (req, res) => {
+    try {
+        if (req.user.role === 'admin') {
+            return exports.getAllOrders(req, res);
+        } else {
+            return exports.getMyOrders(req, res);
+        }
     } catch (error) {
         res.status(500).json({ message: error.message });
     }

@@ -1,9 +1,15 @@
 const User = require('../models/User');
 const jwt = require('jsonwebtoken');
 
-const generateToken = (id) => {
+const generateAccessToken = (id) => {
     return jwt.sign({ id }, process.env.JWT_SECRET, {
-        expiresIn: '30d'
+        expiresIn: '15m'
+    });
+};
+
+const generateRefreshToken = (id) => {
+    return jwt.sign({ id }, process.env.JWT_REFRESH_SECRET || process.env.JWT_SECRET, {
+        expiresIn: '7d'
     });
 };
 
@@ -23,7 +29,8 @@ exports.register = async (req, res) => {
             name: user.name,
             email: user.email,
             role: user.role,
-            token: generateToken(user.id)
+            access: generateAccessToken(user.id),
+            refresh: generateRefreshToken(user.id)
         });
     } catch (error) {
         res.status(500).json({ message: error.message });
@@ -44,10 +51,25 @@ exports.login = async (req, res) => {
             name: user.name,
             email: user.email,
             role: user.role,
-            token: generateToken(user.id)
+            access: generateAccessToken(user.id),
+            refresh: generateRefreshToken(user.id)
         });
     } catch (error) {
         res.status(500).json({ message: error.message });
+    }
+};
+
+exports.refreshToken = async (req, res) => {
+    try {
+        const { refresh } = req.body;
+        if (!refresh) return res.status(401).json({ message: 'Refresh token required' });
+
+        const decoded = jwt.verify(refresh, process.env.JWT_REFRESH_SECRET || process.env.JWT_SECRET);
+        const accessToken = generateAccessToken(decoded.id);
+
+        res.json({ access: accessToken });
+    } catch (error) {
+        res.status(401).json({ message: 'Invalid refresh token' });
     }
 };
 

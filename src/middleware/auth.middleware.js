@@ -11,15 +11,32 @@ const protect = async (req, res, next) => {
             req.user = await User.findByPk(decoded.id, {
                 attributes: { exclude: ['password'] }
             });
-            next();
+            return next();
         } catch (error) {
-            res.status(401).json({ message: 'Not authorized, token failed' });
+            return res.status(401).json({ message: 'Not authorized, token failed' });
         }
     }
 
     if (!token) {
-        res.status(401).json({ message: 'Not authorized, no token' });
+        return res.status(401).json({ message: 'Not authorized, no token' });
     }
+};
+
+const optionalProtect = async (req, res, next) => {
+    let token;
+
+    if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
+        try {
+            token = req.headers.authorization.split(' ')[1];
+            const decoded = jwt.verify(token, process.env.JWT_SECRET);
+            req.user = await User.findByPk(decoded.id, {
+                attributes: { exclude: ['password'] }
+            });
+        } catch (error) {
+            // Ignore error for optional protect
+        }
+    }
+    next();
 };
 
 const admin = (req, res, next) => {
@@ -30,4 +47,4 @@ const admin = (req, res, next) => {
     }
 };
 
-module.exports = { protect, admin };
+module.exports = { protect, optionalProtect, admin };

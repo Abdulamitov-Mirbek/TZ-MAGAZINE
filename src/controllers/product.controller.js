@@ -1,12 +1,53 @@
 const Product = require('../models/Product');
 const Category = require('../models/Category');
+const { Op } = require('sequelize');
+const { sequelize } = require('../config/db');
 
 exports.getProducts = async (req, res) => {
     try {
-        const products = await Product.findAll({
-            include: [{ model: Category, as: 'category' }]
+        const { category, min_price, max_price, search, ordering, page = 1 } = req.query;
+        const limit = 10; // Number of items per page
+        const offset = (page - 1) * limit;
+
+        const where = {};
+        const include = [{ model: Category, as: 'category' }];
+
+        if (category) {
+            include[0].where = { slug: category };
+        }
+
+        if (min_price || max_price) {
+            where.price = {};
+            if (min_price) where.price[Op.gte] = min_price;
+            if (max_price) where.price[Op.lte] = max_price;
+        }
+
+        if (search) {
+            const isPostgres = sequelize.getDialect() === 'postgres';
+            where.name = { [isPostgres ? Op.iLike : Op.like]: `%${search}%` };
+        }
+
+        let order = [['createdAt', 'DESC']];
+        if (ordering) {
+            if (ordering === 'price') order = [['price', 'ASC']];
+            else if (ordering === '-price') order = [['price', 'DESC']];
+            else if (ordering === '-created_at') order = [['createdAt', 'DESC']];
+        }
+
+        const { count, rows } = await Product.findAndCountAll({
+            where,
+            include,
+            order,
+            limit,
+            offset
         });
-        res.json(products);
+
+        res.json({
+            count,
+            page: parseInt(page),
+            pages: Math.ceil(count / limit),
+            products: rows
+        });
     } catch (error) {
         res.status(500).json({ message: error.message });
     }

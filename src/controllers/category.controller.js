@@ -21,8 +21,8 @@ exports.getCategoryById = async (req, res) => {
 
 exports.createCategory = async (req, res) => {
     try {
-        const { name, description } = req.body;
-        const category = await Category.create({ name, description });
+        const { name, slug, description } = req.body;
+        const category = await Category.create({ name, slug, description });
         res.status(201).json(category);
     } catch (error) {
         res.status(500).json({ message: error.message });
@@ -31,11 +31,11 @@ exports.createCategory = async (req, res) => {
 
 exports.updateCategory = async (req, res) => {
     try {
-        const { name, description } = req.body;
+        const { name, slug, description } = req.body;
         const category = await Category.findByPk(req.params.id);
         if (!category) return res.status(404).json({ message: 'Category not found' });
         
-        await category.update({ name, description });
+        await category.update({ name, slug, description });
         res.json(category);
     } catch (error) {
         res.status(500).json({ message: error.message });

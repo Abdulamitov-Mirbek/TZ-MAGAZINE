@@ -13,8 +13,29 @@ const { protect, admin } = require('../middleware/auth.middleware');
  * @swagger
  * /api/products:
  *   get:
- *     summary: Get all products
+ *     summary: Get all products with filters
  *     tags: [Products]
+ *     parameters:
+ *       - in: query
+ *         name: category
+ *         schema: {type: string}
+ *         description: Category slug
+ *       - in: query
+ *         name: min_price
+ *         schema: {type: number}
+ *       - in: query
+ *         name: max_price
+ *         schema: {type: number}
+ *       - in: query
+ *         name: search
+ *         schema: {type: string}
+ *         description: Search by name
+ *       - in: query
+ *         name: ordering
+ *         schema: {type: string, enum: [price, -price, -created_at]}
+ *       - in: query
+ *         name: page
+ *         schema: {type: integer, default: 1}
  *     responses:
  *       200:
  *         description: List of products
@@ -40,6 +61,18 @@ const { protect, admin } = require('../middleware/auth.middleware');
  *     responses:
  *       201:
  *         description: Product created
+ * /api/products/{id}:
+ *   get:
+ *     summary: Get product details
+ *     tags: [Products]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema: {type: string}
+ *     responses:
+ *       200:
+ *         description: Product details
  */
 router.get('/', getProducts);
 router.get('/:id', getProductById);
