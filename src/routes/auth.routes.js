@@ -22,15 +22,20 @@ const { protect } = require("../middleware/auth.middleware");
  *         application/json:
  *           schema:
  *             type: object
- *             required: [name, email, password]
+ *             oneOf:
+ *               - required: [name, email, password]
+ *               - required: [username, email, password]
  *             properties:
  *               name: {type: string}
+ *               username: {type: string}
  *               email: {type: string}
  *               password: {type: string}
  *               role: {type: string, enum: [user, admin], default: user}
  *     responses:
  *       201:
  *         description: User created
+ *       400:
+ *         description: Validation error returned when required fields are missing or invalid
  * /api/auth/login:
  *   post:
  *     summary: Login user
