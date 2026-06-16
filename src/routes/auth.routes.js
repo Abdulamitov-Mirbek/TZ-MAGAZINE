@@ -1,7 +1,14 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const { register, login, refreshToken, getMe, updateProfile, updatePassword } = require('../controllers/auth.controller');
-const { protect } = require('../middleware/auth.middleware');
+const {
+  register,
+  login,
+  refreshToken,
+  getMe,
+  updateProfile,
+  updatePassword,
+} = require("../controllers/auth.controller");
+const { protect } = require("../middleware/auth.middleware");
 
 /**
  * @swagger
@@ -34,13 +41,20 @@ const { protect } = require('../middleware/auth.middleware');
  *         application/json:
  *           schema:
  *             type: object
- *             required: [email, password]
+ *             oneOf:
+ *               - required: [email, password]
+ *               - required: [username, password]
  *             properties:
  *               email: {type: string}
+ *               username: {type: string}
  *               password: {type: string}
  *     responses:
  *       200:
  *         description: Login successful
+ *       400:
+ *         description: Validation error returned when required fields are missing or invalid
+ *       401:
+ *         description: Invalid credentials
  * /api/auth/refresh:
  *   post:
  *     summary: Refresh access token
@@ -102,11 +116,11 @@ const { protect } = require('../middleware/auth.middleware');
  *       200:
  *         description: Password updated
  */
-router.post('/register', register);
-router.post('/login', login);
-router.post('/refresh', refreshToken);
-router.get('/me', protect, getMe);
-router.put('/me', protect, updateProfile);
-router.put('/update-password', protect, updatePassword);
+router.post("/register", register);
+router.post("/login", login);
+router.post("/refresh", refreshToken);
+router.get("/me", protect, getMe);
+router.put("/me", protect, updateProfile);
+router.put("/update-password", protect, updatePassword);
 
 module.exports = router;
