@@ -83,3 +83,44 @@ exports.getMe = async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 };
+
+exports.updateProfile = async (req, res) => {
+    try {
+        const { name, email } = req.body;
+        const user = await User.findByPk(req.user.id);
+
+        if (user) {
+            user.name = name || user.name;
+            user.email = email || user.email;
+            const updatedUser = await user.save();
+            
+            res.json({
+                id: updatedUser.id,
+                name: updatedUser.name,
+                email: updatedUser.email,
+                role: updatedUser.role
+            });
+        } else {
+            res.status(404).json({ message: 'User not found' });
+        }
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+exports.updatePassword = async (req, res) => {
+    try {
+        const { currentPassword, newPassword } = req.body;
+        const user = await User.findByPk(req.user.id);
+
+        if (user && (await user.comparePassword(currentPassword))) {
+            user.password = newPassword;
+            await user.save();
+            res.json({ message: 'Password updated successfully' });
+        } else {
+            res.status(401).json({ message: 'Invalid current password' });
+        }
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};

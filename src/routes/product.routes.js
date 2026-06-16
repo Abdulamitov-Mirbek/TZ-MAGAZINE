@@ -8,6 +8,19 @@ const {
     deleteProduct 
 } = require('../controllers/product.controller');
 const { protect, admin } = require('../middleware/auth.middleware');
+const multer = require('multer');
+const path = require('path');
+
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, 'uploads/');
+    },
+    filename: (req, file, cb) => {
+        cb(null, `${Date.now()}${path.extname(file.originalname)}`);
+    }
+});
+
+const upload = multer({ storage });
 
 /**
  * @swagger
@@ -61,6 +74,30 @@ const { protect, admin } = require('../middleware/auth.middleware');
  *     responses:
  *       201:
  *         description: Product created
+ * /api/products/upload:
+ *   post:
+ *     summary: Upload product image (Admin only)
+ *     tags: [Products]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               image:
+ *                 type: string
+ *                 format: binary
+ *     responses:
+ *       200:
+ *         description: Image uploaded
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 imageUrl: {type: string}
  * /api/products/{id}:
  *   get:
  *     summary: Get product details
@@ -73,10 +110,52 @@ const { protect, admin } = require('../middleware/auth.middleware');
  *     responses:
  *       200:
  *         description: Product details
+ *   put:
+ *     summary: Update product (Admin only)
+ *     tags: [Products]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema: {type: string}
+ *     requestBody:
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               name: {type: string}
+ *               description: {type: string}
+ *               price: {type: number}
+ *               stock: {type: number}
+ *               categoryId: {type: string}
+ *               imageUrl: {type: string}
+ *     responses:
+ *       200:
+ *         description: Product updated
+ *   delete:
+ *     summary: Delete product (Admin only)
+ *     tags: [Products]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema: {type: string}
+ *     responses:
+ *       200:
+ *         description: Product deleted
  */
 router.get('/', getProducts);
 router.get('/:id', getProductById);
 router.post('/', protect, admin, createProduct);
+router.post('/upload', protect, admin, upload.single('image'), (req, res) => {
+    if (!req.file) return res.status(400).json({ message: 'No file uploaded' });
+    res.json({ imageUrl: `/uploads/${req.file.filename}` });
+});
 router.put('/:id', protect, admin, updateProduct);
 router.delete('/:id', protect, admin, deleteProduct);
 

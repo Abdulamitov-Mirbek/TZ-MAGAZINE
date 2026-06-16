@@ -4,7 +4,8 @@ const {
     createOrder, 
     getOrders,
     getOrderById,
-    updateOrderStatus 
+    updateOrderStatus,
+    cancelOrder
 } = require('../controllers/order.controller');
 const { protect, optionalProtect, admin } = require('../middleware/auth.middleware');
 
@@ -55,10 +56,25 @@ const { protect, optionalProtect, admin } = require('../middleware/auth.middlewa
  *     responses:
  *       200:
  *         description: Order details
+ * /api/orders/{id}/cancel:
+ *   put:
+ *     summary: Cancel order (User only, if pending)
+ *     tags: [Orders]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema: {type: string}
+ *     responses:
+ *       200:
+ *         description: Order cancelled
  */
 router.post('/', optionalProtect, createOrder);
 router.get('/', protect, getOrders);
 router.get('/:id', protect, getOrderById);
 router.put('/:id/status', protect, admin, updateOrderStatus);
+router.put('/:id/cancel', protect, cancelOrder);
 
 module.exports = router;

@@ -120,3 +120,23 @@ exports.updateOrderStatus = async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 };
+
+exports.cancelOrder = async (req, res) => {
+    try {
+        const order = await Order.findByPk(req.params.id);
+        if (!order) return res.status(404).json({ message: 'Order not found' });
+
+        if (order.userId !== req.user.id) {
+            return res.status(403).json({ message: 'Not authorized to cancel this order' });
+        }
+
+        if (order.status !== 'pending') {
+            return res.status(400).json({ message: 'Order cannot be cancelled as it is already ' + order.status });
+        }
+
+        await order.update({ status: 'cancelled' });
+        res.json({ message: 'Order cancelled successfully', order });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
