@@ -35,3 +35,9 @@ tmp/
 # Build outputs
 dist/
 build/
+
+# Prisma
+node_modules/.prisma/
+
+# Docker
+# docker-compose.yml  # Uncomment if you don't want to commit docker-compose
