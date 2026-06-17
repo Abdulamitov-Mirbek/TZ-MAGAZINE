@@ -7,6 +7,15 @@ const { swaggerUi, specs } = require('./config/swagger');
 
 const app = express();
 
+// Validate required environment variables before starting
+const requiredEnvVars = ['JWT_SECRET', 'DATABASE_URL'];
+const missingEnvVars = requiredEnvVars.filter(varName => !process.env[varName]);
+if (missingEnvVars.length > 0) {
+    console.error(`FATAL: Missing required environment variables: ${missingEnvVars.join(', ')}`);
+    console.error('Please set them in your Render dashboard (Environment tab) or .env file.');
+    process.exit(1);
+}
+
 // Middleware
 app.use(cors());
 app.use(express.json());
