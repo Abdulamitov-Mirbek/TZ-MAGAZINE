@@ -19,7 +19,7 @@ const generateRefreshToken = (id) => {
 
 exports.register = async (req, res) => {
   try {
-    const { name, username, email, password, role } = req.body;
+    const { name, username, email, password } = req.body;
     const displayName =
       (typeof name === "string" && name.trim()) ||
       (typeof username === "string" && username.trim());
@@ -52,8 +52,7 @@ exports.register = async (req, res) => {
     const user = await User.create({
       name: displayName,
       email: normalizedEmail,
-      password,
-      role,
+      password
     });
 
     res.status(201).json({

@@ -30,7 +30,6 @@ const { protect } = require("../middleware/auth.middleware");
  *               username: {type: string}
  *               email: {type: string}
  *               password: {type: string}
- *               role: {type: string, enum: [user, admin], default: user}
  *     responses:
  *       201:
  *         description: User created

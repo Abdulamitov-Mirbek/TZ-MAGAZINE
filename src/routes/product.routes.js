@@ -1,23 +1,25 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const { 
-    getProducts, 
-    getProductById, 
-    createProduct, 
-    updateProduct, 
-    deleteProduct 
-} = require('../controllers/product.controller');
-const { protect, admin } = require('../middleware/auth.middleware');
-const multer = require('multer');
-const path = require('path');
+const {
+  getProducts,
+  getProductById,
+  createProduct,
+  updateProduct,
+  deleteProduct,
+  getSimilarProducts,
+  getFeaturedProducts,
+} = require("../controllers/product.controller");
+const { protect, admin } = require("../middleware/auth.middleware");
+const multer = require("multer");
+const path = require("path");
 
 const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
-        cb(null, 'uploads/');
-    },
-    filename: (req, file, cb) => {
-        cb(null, `${Date.now()}${path.extname(file.originalname)}`);
-    }
+  destination: (req, file, cb) => {
+    cb(null, "uploads/");
+  },
+  filename: (req, file, cb) => {
+    cb(null, `${Date.now()}${path.extname(file.originalname)}`);
+  },
 });
 
 const upload = multer({ storage });
@@ -148,15 +150,41 @@ const upload = multer({ storage });
  *     responses:
  *       200:
  *         description: Product deleted
+ * /api/products/featured:
+ *   get:
+ *     summary: Get featured products (latest with stock)
+ *     tags: [Products]
+ *     parameters:
+ *       - in: query
+ *         name: limit
+ *         schema: {type: integer, default: 8}
+ *         description: Number of products to return
+ *     responses:
+ *       200:
+ *         description: List of featured products
+ * /api/products/{id}/similar:
+ *   get:
+ *     summary: Get similar products (same category)
+ *     tags: [Products]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema: {type: string}
+ *     responses:
+ *       200:
+ *         description: List of similar products
  */
-router.get('/', getProducts);
-router.get('/:id', getProductById);
-router.post('/', protect, admin, createProduct);
-router.post('/upload', protect, admin, upload.single('image'), (req, res) => {
-    if (!req.file) return res.status(400).json({ message: 'No file uploaded' });
-    res.json({ imageUrl: `/uploads/${req.file.filename}` });
+router.get("/", getProducts);
+router.get("/featured", getFeaturedProducts);
+router.post("/upload", protect, admin, upload.single("image"), (req, res) => {
+  if (!req.file) return res.status(400).json({ message: "No file uploaded" });
+  res.json({ imageUrl: `/uploads/${req.file.filename}` });
 });
-router.put('/:id', protect, admin, updateProduct);
-router.delete('/:id', protect, admin, deleteProduct);
+router.get("/:id", getProductById);
+router.get("/:id/similar", getSimilarProducts);
+router.post("/", protect, admin, createProduct);
+router.put("/:id", protect, admin, updateProduct);
+router.delete("/:id", protect, admin, deleteProduct);
 
 module.exports = router;
