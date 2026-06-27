@@ -4,6 +4,11 @@ const path = require("path");
 require("dotenv").config();
 const { connectDB, sequelize } = require("./config/db");
 const { swaggerUi, specs } = require("./config/swagger");
+const {
+  corsOptions,
+  allowedOrigins,
+  allowNullOrigin,
+} = require("./config/cors");
 
 const app = express();
 
@@ -23,7 +28,7 @@ if (missingEnvVars.length > 0) {
 }
 
 // Middleware
-app.use(cors());
+app.use(cors(corsOptions));
 app.use(express.json());
 app.use("/uploads", express.static(path.join(__dirname, "../uploads")));
 
@@ -55,6 +60,8 @@ const startServer = async () => {
 
   app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
+    console.log(`CORS allowed origins: ${allowedOrigins.join(", ")}`);
+    console.log(`CORS file:// origin allowed: ${allowNullOrigin}`);
     console.log(`Swagger docs available at http://localhost:${PORT}/api-docs`);
   });
 };
