@@ -57,7 +57,6 @@ exports.register = async (req, res) => {
       id: user.id,
       name: user.name,
       email: user.email,
-      role: user.role,
       access: generateAccessToken(user.id),
       refresh: generateRefreshToken(user.id),
     });

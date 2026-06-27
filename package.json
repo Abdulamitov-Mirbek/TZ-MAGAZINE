@@ -7,6 +7,10 @@
     "start": "node src/app.js",
     "dev": "nodemon src/app.js",
     "init-db": "node src/config/init-db.js",
+    "prisma:generate": "prisma generate",
+    "prisma:studio": "prisma studio",
+    "users:prisma": "node scripts/list-users.prisma.js",
+    "user:make-admin": "node scripts/make-admin.prisma.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
