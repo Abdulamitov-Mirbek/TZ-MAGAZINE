@@ -22,12 +22,9 @@ const { protect } = require("../middleware/auth.middleware");
  *         application/json:
  *           schema:
  *             type: object
- *             oneOf:
- *               - required: [name, email, password]
- *               - required: [username, email, password]
+ *             required: [name, email, password]
  *             properties:
  *               name: {type: string}
- *               username: {type: string}
  *               email: {type: string}
  *               password: {type: string}
  *     responses:

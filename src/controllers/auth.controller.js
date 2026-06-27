@@ -19,13 +19,11 @@ const generateRefreshToken = (id) => {
 
 exports.register = async (req, res) => {
   try {
-    const { name, username, email, password } = req.body;
-    const displayName =
-      (typeof name === "string" && name.trim()) ||
-      (typeof username === "string" && username.trim());
+    const { name, email, password } = req.body;
+    const displayName = typeof name === "string" && name.trim();
 
     if (!displayName) {
-      return res.status(400).json({ message: "name or username is required" });
+      return res.status(400).json({ message: "name is required" });
     }
 
     if (!email || typeof email !== "string" || !email.trim()) {
@@ -52,7 +50,7 @@ exports.register = async (req, res) => {
     const user = await User.create({
       name: displayName,
       email: normalizedEmail,
-      password
+      password,
     });
 
     res.status(201).json({

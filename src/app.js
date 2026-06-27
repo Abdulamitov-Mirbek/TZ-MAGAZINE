@@ -8,6 +8,7 @@ const {
   corsOptions,
   allowedOrigins,
   allowNullOrigin,
+  allowAllOrigins,
 } = require("./config/cors");
 
 const app = express();
@@ -29,6 +30,7 @@ if (missingEnvVars.length > 0) {
 
 // Middleware
 app.use(cors(corsOptions));
+app.options(/.*/, cors(corsOptions));
 app.use(express.json());
 app.use("/uploads", express.static(path.join(__dirname, "../uploads")));
 
@@ -60,6 +62,7 @@ const startServer = async () => {
 
   app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
+    console.log(`CORS allow all origins: ${allowAllOrigins}`);
     console.log(`CORS allowed origins: ${allowedOrigins.join(", ")}`);
     console.log(`CORS file:// origin allowed: ${allowNullOrigin}`);
     console.log(`Swagger docs available at http://localhost:${PORT}/api-docs`);
