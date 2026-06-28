@@ -2,6 +2,7 @@ const { Sequelize } = require('sequelize');
 require('dotenv').config();
 
 const databaseUrl = process.env.DATABASE_URL;
+let databaseHostname = "";
 
 if (!databaseUrl) {
     console.error('DATABASE_URL is not defined in environment variables.');
@@ -11,6 +12,7 @@ if (!databaseUrl) {
 // Debug logging (safe)
 try {
     const url = new URL(databaseUrl);
+    databaseHostname = url.hostname;
     console.log(`Attempting to connect to database at: ${url.hostname}:${url.port || 5432}`);
     
     if (process.env.NODE_ENV === 'production' && url.hostname === 'localhost') {
@@ -20,15 +22,24 @@ try {
     console.log('Attempting to connect to database (URL format is not standard)');
 }
 
+const isLocalDatabase = ['localhost', '127.0.0.1', '::1'].includes(databaseHostname);
+const useSsl =
+    process.env.DB_SSL === 'true' ||
+    process.env.NODE_ENV === 'production' ||
+    databaseUrl.includes('sslmode=require') ||
+    (!isLocalDatabase && process.env.DB_SSL !== 'false');
+
 const sequelize = new Sequelize(databaseUrl, {
     dialect: 'postgres',
     logging: false,
-    dialectOptions: {
-        ssl: process.env.NODE_ENV === 'production' ? {
+    dialectOptions: useSsl
+        ? {
+            ssl: {
             require: true,
             rejectUnauthorized: false
-        } : false
-    }
+            }
+        }
+        : {}
 });
 
 const connectDB = async () => {

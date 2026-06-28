@@ -4,6 +4,7 @@ const path = require("path");
 require("dotenv").config();
 const { connectDB, sequelize } = require("./config/db");
 const { swaggerUi, specs } = require("./config/swagger");
+const { runSchemaMigrations } = require("./config/migrate-db");
 const {
   corsOptions,
   allowedOrigins,
@@ -59,6 +60,7 @@ const startServer = async () => {
 
   // Sync models
   await sequelize.sync({ force: false });
+  await runSchemaMigrations();
 
   app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
