@@ -36,7 +36,7 @@ exports.register = async (req, res) => {
       return res.status(400).json({ message: "email must be valid" });
     }
 
-    if (!password || typeof password !== "string" || !password.trim()) {
+    if (!password || typeof password !== "string"   || !password.trim()) {
       return res.status(400).json({ message: "password is required" });
     }
 

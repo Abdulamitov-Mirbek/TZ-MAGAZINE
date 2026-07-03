@@ -11,6 +11,7 @@
     "prisma:studio": "prisma studio",
     "users:prisma": "node scripts/list-users.prisma.js",
     "user:make-admin": "node scripts/make-admin.prisma.js",
+    "products:seed": "node scripts/seed-products.prisma.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
